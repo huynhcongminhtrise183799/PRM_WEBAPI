@@ -1,4 +1,4 @@
-
+﻿
 using Microsoft.EntityFrameworkCore;
 using PRM.Infrastructure;
 
@@ -20,8 +20,14 @@ namespace PRM.API
 				opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 			var app = builder.Build();
 
-			// Configure the HTTP request pipeline.
-			if (app.Environment.IsDevelopment())
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<PRMDbContext>();
+                context.Database.Migrate();
+            }
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
 			{
 				app.UseSwagger();
 				app.UseSwaggerUI();
@@ -30,7 +36,6 @@ namespace PRM.API
 			app.UseHttpsRedirection();
 
 			app.UseAuthorization();
-
 
 			app.MapControllers();
 
