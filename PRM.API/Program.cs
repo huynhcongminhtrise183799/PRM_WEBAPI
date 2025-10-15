@@ -1,6 +1,10 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using PRM.Application.Interfaces;
+using PRM.Application.Interfaces.Repositories;
+using PRM.Application.Services;
 using PRM.Infrastructure;
+using PRM.Infrastructure.Repositories;
 
 namespace PRM.API
 {
@@ -10,15 +14,22 @@ namespace PRM.API
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			// Add services to the container.
 
 			builder.Services.AddControllers();
-			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
 			builder.Services.AddDbContext<PRMDbContext>(opt =>
 				opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
-			var app = builder.Build();
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+			builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ISupplierService, SupplierService>();
+            builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+            builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
+            builder.Services.AddScoped<IVoucherService, VoucherService>();
+
+            var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
             {
@@ -26,7 +37,6 @@ namespace PRM.API
                 context.Database.Migrate();
             }
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
 			{
 				app.UseSwagger();
