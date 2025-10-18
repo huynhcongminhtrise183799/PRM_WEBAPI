@@ -1,10 +1,15 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using PRM.API.ChatHubs;
 using PRM.Application.Interfaces;
 using PRM.Application.Interfaces.Repositories;
+using PRM.Application.IService;
+using PRM.Application.Service;
 using PRM.Application.Services;
+using PRM.Domain.IRepository;
 using PRM.Infrastructure;
 using PRM.Infrastructure.Repositories;
+using PRM.Infrastructure.Repository;
 
 namespace PRM.API
 {
@@ -20,18 +25,39 @@ namespace PRM.API
 			builder.Services.AddSwaggerGen();
 			builder.Services.AddDbContext<PRMDbContext>(opt =>
 				opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
-
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+			builder.Services.AddSingleton<IChatDbContext>(sp =>
+			{
+				var connectionString = builder.Configuration.GetConnectionString("MongoDb");
+				var dbName = builder.Configuration["MongoDbSettings:DatabaseName"];
+				return new ChatDbContext(connectionString, dbName);
+			});
+			builder.Services.AddSignalR();
+			builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
 			builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ISupplierService, SupplierService>();
             builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
             builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
             builder.Services.AddScoped<IVoucherService, VoucherService>();
+			builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+			builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+			builder.Services.AddScoped<IConversationService, ConversationService>();
+			builder.Services.AddScoped<IChatNotifier, SignalRChatNotifier>();
+			builder.Services.AddScoped<IChatService , ChatService>();
+			builder.Services.AddCors(options =>
+			{
+				options.AddPolicy("AllowAll", policy =>
+				{
+					policy.AllowAnyHeader()
+						  .AllowAnyMethod()
+						  .AllowCredentials()
+						  .SetIsOriginAllowed(_ => true);
+				});
+			});
+			var app = builder.Build();
+			app.UseCors("AllowAll");
 
-            var app = builder.Build();
-
-            using (var scope = app.Services.CreateScope())
+			using (var scope = app.Services.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<PRMDbContext>();
                 context.Database.Migrate();
@@ -48,6 +74,7 @@ namespace PRM.API
 			app.UseAuthorization();
 
 			app.MapControllers();
+			app.MapHub<ChatHub>("/chatHub");
 
 			app.Run();
 		}
