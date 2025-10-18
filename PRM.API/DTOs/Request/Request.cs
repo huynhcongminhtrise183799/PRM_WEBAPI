@@ -1,6 +1,6 @@
-﻿namespace PRM.API.DTOs
+﻿namespace PRM.API.DTOs.Request
 {
-	public class Request
-	{
-	}
+    public class Request
+    {
+    }
 }
