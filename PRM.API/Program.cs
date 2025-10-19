@@ -1,10 +1,12 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using PRM.Application.IService;         
+using PRM.Application.Service;          
 using PRM.Application.Interfaces;
 using PRM.Application.Interfaces.Repositories;
 using PRM.Application.Services;
 using PRM.Infrastructure;
 using PRM.Infrastructure.Repositories;
+using PRM.API.Middleware;            
 
 namespace PRM.API
 {
@@ -14,36 +16,54 @@ namespace PRM.API
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-
 			builder.Services.AddControllers();
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
+
 			builder.Services.AddDbContext<PRMDbContext>(opt =>
 				opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+			builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+			// Đăng ký Repo
 			builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            builder.Services.AddScoped<ISupplierService, SupplierService>();
-            builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
-            builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
-            builder.Services.AddScoped<IVoucherService, VoucherService>();
+			builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
+			builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
 
-            var app = builder.Build();
+			// Đăng ký Service
+			builder.Services.AddScoped<ICategoryService, CategoryService>();
+			builder.Services.AddScoped<ISupplierService, SupplierService>();
+			builder.Services.AddScoped<IVoucherService, VoucherService>();
+			builder.Services.AddScoped<IUserService, UserService>();
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<PRMDbContext>();
-                context.Database.Migrate();
-            }
+			builder.Services.AddCors(options =>
+			{
+				options.AddPolicy("AllowAll", policy =>
+					policy.AllowAnyOrigin()
+						  .AllowAnyMethod()
+						  .AllowAnyHeader());
+			});
 
-            if (app.Environment.IsDevelopment())
+			var app = builder.Build();
+
+			using (var scope = app.Services.CreateScope())
+			{
+				var context = scope.ServiceProvider.GetRequiredService<PRMDbContext>();
+				context.Database.Migrate();
+			}
+
+			if (app.Environment.IsDevelopment())
 			{
 				app.UseSwagger();
 				app.UseSwaggerUI();
 			}
 
 			app.UseHttpsRedirection();
+
+			app.UseMiddleware<ExceptionMiddleware>();
+
+			app.UseCors("AllowAll");
 
 			app.UseAuthorization();
 
