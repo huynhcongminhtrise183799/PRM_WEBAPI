@@ -17,6 +17,8 @@ namespace PRM.Infrastructure.Repositories
         {
             return await _context.Categories
                 .Include(c => c.Products)
+                .ThenInclude(p => p.ProductColors)
+                .ThenInclude(pc => pc.ProductImages)
                 .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
         }
 
