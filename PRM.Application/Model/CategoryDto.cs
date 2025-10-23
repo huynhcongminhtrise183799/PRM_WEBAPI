@@ -28,6 +28,8 @@ namespace PRM.Application.Model
     {
         public Guid ProductId { get; set; }
         public string Name { get; set; }
+        public List<string> ImageUrls { get; set; } = new();
+
     }
 
     public class CategoryWithProductsDto

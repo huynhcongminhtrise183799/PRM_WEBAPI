@@ -53,7 +53,12 @@ namespace PRM.Application.Services
                 Products = category.Products.Select(p => new ProductDto
                 {
                     ProductId = p.ProductId,
-                    Name = p.Name
+                    Name = p.Name,
+                    ImageUrls = p.ProductColors
+                    .SelectMany(pc => pc.ProductImages)
+                    .Where(img => img.Status == "active")
+                    .Select(img => img.ImageUrl)
+                    .ToList()
                 }).ToList()
             };
         }
