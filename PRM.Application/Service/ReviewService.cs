@@ -47,6 +47,7 @@ namespace PRM.Application.Service
 					Details = review.Details,
 					ReviewDate = review.ReviewDate,
 					UserId = user.UserId,
+					Email = user.Email,
 					ProductId = product.ProductId,
 
 					User = new MinimalUserDto
@@ -104,6 +105,7 @@ namespace PRM.Application.Service
 				Details = r.Details,
 				ReviewDate = r.ReviewDate,
 				UserId = r.UserId,
+				Email = r.User.Email,
 				ProductId = r.ProductId,
 
 				User = new MinimalUserDto
