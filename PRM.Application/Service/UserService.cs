@@ -157,5 +157,22 @@ namespace PRM.Application.Service
 			var hash = HashPassword(inputPassword);
 			return hash == hashedPassword;
 		}
+
+		public async Task<UserResponseDto> GetAdmin()
+		{
+			var userRepo = _unitOfWork.Repository<User>();
+			var admin = await userRepo.GetAsync(u => u.Role == UserRole.Admin.ToString());
+			if (admin == null)
+				throw new AppException("Admin not found.", 404, "ADMIN_NOT_FOUND");
+			var adminDto = new UserResponseDto
+			{
+				UserId = admin.UserId,
+				Email = admin.Email,
+				FullName = admin.FullName,
+				Role = admin.Role,
+				Status = admin.Status
+			};
+			return adminDto;
+		}
 	}
 }

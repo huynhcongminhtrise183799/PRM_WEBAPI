@@ -10,5 +10,6 @@ namespace PRM.Domain.IRepository
 	public interface IConversationRepository
 	{
 		Task<bool> Add(Conversation conversation);
+		Task<Conversation> GetConversationByAccountId(Guid accountId);
 	}
 }

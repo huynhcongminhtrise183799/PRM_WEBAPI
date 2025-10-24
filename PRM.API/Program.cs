@@ -45,6 +45,8 @@ namespace PRM.API
 			builder.Services.AddScoped<IChatNotifier, SignalRChatNotifier>();
 			builder.Services.AddScoped<IChatService , ChatService>();
 			builder.Services.AddScoped<IUserService, UserService>();
+			builder.Services.AddScoped<IProductService, ProductService>();
+			builder.Services.AddScoped<IReviewService, ReviewService>();
 			builder.Services.AddCors(options =>
 			{
 				options.AddPolicy("AllowAll", policy =>
@@ -70,7 +72,7 @@ namespace PRM.API
 				app.UseSwaggerUI();
 			}
 
-			app.UseHttpsRedirection();
+		//	app.UseHttpsRedirection();
 
 			app.UseMiddleware<ExceptionMiddleware>();
 

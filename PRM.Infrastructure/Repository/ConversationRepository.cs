@@ -31,6 +31,12 @@ namespace PRM.Infrastructure.Repository
 				throw new Exception(ex.Message);
 			}
 		}
+
+		public Task<Conversation> GetConversationByAccountId(Guid accountId)
+		{
+			var filter = Builders<Conversation>.Filter.Eq("UserId", accountId);
+			return _context.Conversations.Find(filter).FirstOrDefaultAsync();
+		}
 	}
 
 
