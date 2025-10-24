@@ -2,6 +2,7 @@
 using PRM.Application.IService;
 using PRM.Application.Model;
 using PRM.Application.Model.Color;
+using PRM.Application.Model.Img;
 using PRM.Application.Model.Product;
 using PRM.Domain.Entities;
 using System;
@@ -84,7 +85,21 @@ namespace PRM.Application.Service
 					CategoryId = product.CategoryId,
 					SupplierId = product.SupplierId,
 					Status = product.Status,
-					ProductColors = product.ProductColors?.Select(pc => pc.ColorName).ToList(),
+					ProductColors = product.ProductColors?.Select(pc => new ProductColorDto
+					{
+						ProductColorsId = pc.ProductColorsId,
+						ColorName = pc.ColorName,
+						ColorCode = pc.ColorCode,
+						Stock = pc.Stock,
+						Price = pc.Price,
+						Status = pc.Status,
+						ProductImages = pc.ProductImages?.Select(img => new ProductImageDto
+						{
+							ProductImageId = img.ProductImageId,
+							ImageUrl = img.ImageUrl,
+							Status = img.Status
+						}).ToList()
+					}).ToList(),
 					CategoryName = product.Category?.Name,
 					SupplierName = product.Supplier?.Name
 				};
@@ -114,11 +129,11 @@ namespace PRM.Application.Service
 		public async Task<IEnumerable<Model.Product.ProductDto>> GetAllAsync()
 		{
 			var query = _unitOfWork.Repository<Product>()
-			.GetQueryable()
-			.Include(p => p.Category)
-			.Include(p => p.Supplier)
-			.Include(p => p.ProductColors)
-				.ThenInclude(pc => pc.ProductImages);
+		.GetQueryable()
+		.Include(p => p.Category)
+		.Include(p => p.Supplier)
+		.Include(p => p.ProductColors)
+			.ThenInclude(pc => pc.ProductImages);
 
 			var products = await query.ToListAsync();
 
@@ -133,7 +148,21 @@ namespace PRM.Application.Service
 				Status = p.Status,
 				CategoryName = p.Category?.Name,
 				SupplierName = p.Supplier?.Name,
-				ProductColors = p.ProductColors?.Select(pc => pc.ColorName).ToList()
+				ProductColors = p.ProductColors?.Select(pc => new ProductColorDto
+				{
+					ProductColorsId = pc.ProductColorsId,
+					ColorName = pc.ColorName,
+					ColorCode = pc.ColorCode,
+					Stock = pc.Stock,
+					Price = pc.Price,
+					Status = pc.Status,
+					ProductImages = pc.ProductImages?.Select(img => new ProductImageDto
+					{
+						ProductImageId = img.ProductImageId,
+						ImageUrl = img.ImageUrl,
+						Status = img.Status // nếu field tồn tại
+					}).ToList()
+				}).ToList()
 			}).ToList();
 
 			return result;
@@ -160,7 +189,21 @@ namespace PRM.Application.Service
 				Status = product.Status,
 				CategoryName = product.Category?.Name,
 				SupplierName = product.Supplier?.Name,
-				ProductColors = product.ProductColors?.Select(pc => pc.ColorName).ToList()
+				ProductColors = product.ProductColors?.Select(pc => new ProductColorDto
+				{
+					ProductColorsId = pc.ProductColorsId,
+					ColorName = pc.ColorName,
+					ColorCode = pc.ColorCode,
+					Stock = pc.Stock,
+					Price = pc.Price,
+					Status = pc.Status,
+					ProductImages = pc.ProductImages?.Select(img => new ProductImageDto
+					{
+						ProductImageId = img.ProductImageId,
+						ImageUrl = img.ImageUrl,
+						Status = img.Status
+					}).ToList()
+				}).ToList(),
 			};
 			return result;
 		}
@@ -240,7 +283,21 @@ namespace PRM.Application.Service
 					Status = product.Status,
 					CategoryName = product.Category?.Name,
 					SupplierName = product.Supplier?.Name,
-					ProductColors = product.ProductColors?.Select(pc => pc.ColorName).ToList()
+					ProductColors = product.ProductColors?.Select(pc => new ProductColorDto
+					{
+						ProductColorsId = pc.ProductColorsId,
+						ColorName = pc.ColorName,
+						ColorCode = pc.ColorCode,
+						Stock = pc.Stock,
+						Price = pc.Price,
+						Status = pc.Status,
+						ProductImages = pc.ProductImages?.Select(img => new ProductImageDto
+						{
+							ProductImageId = img.ProductImageId,
+							ImageUrl = img.ImageUrl,
+							Status = img.Status
+						}).ToList()
+					}).ToList(),
 				};
 
 				return (true, "Cập nhật sản phẩm thành công.", result);
