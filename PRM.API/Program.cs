@@ -53,13 +53,14 @@ namespace PRM.API
 				context.Database.Migrate();
 			}
 
-			if (app.Environment.IsDevelopment())
-			{
+
+			//if (app.Environment.IsDevelopment())
+			//{
 				app.UseSwagger();
 				app.UseSwaggerUI();
-			}
+			//}
 
-			app.UseHttpsRedirection();
+			//app.UseHttpsRedirection();
 
 			app.UseMiddleware<ExceptionMiddleware>();
 
