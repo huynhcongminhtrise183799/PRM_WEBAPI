@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PRM.Application.Model.Color;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,7 +27,7 @@ namespace PRM.Application.Model.Product
 
 		public string? SupplierName { get; set; }
 
-		public List<string>? ProductColors { get; set; }
+		public List<ProductColorDto>? ProductColors { get; set; }
 
 		
 	}
