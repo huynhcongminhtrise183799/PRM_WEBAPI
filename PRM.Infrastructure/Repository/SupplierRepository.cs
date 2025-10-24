@@ -18,6 +18,7 @@ namespace PRM.Infrastructure.Repositories
             return await _context.Suppliers
                 .Include(s => s.Products)
                     .ThenInclude(p => p.ProductColors)
+                    .ThenInclude(pc => pc.ProductImages)
                 .FirstOrDefaultAsync(s => s.SupplierId == supplierId);
         }
 
