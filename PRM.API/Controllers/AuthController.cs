@@ -20,36 +20,37 @@ namespace PRM.API.Controllers
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterDto dto)
 		{
-			var result = await _userService.RegisterAsync(dto);
-			return Ok(result);
+			var user = await _userService.RegisterAsync(dto);
+			return Ok(BaseResponse<UserResponseDto>.Ok(user, "Đăng ký thành công"));
 		}
 
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginDto dto)
 		{
-			var result = await _userService.LoginAsync(dto);
-			return Ok(result);
+			var user = await _userService.LoginAsync(dto);
+			return Ok(BaseResponse<UserResponseDto>.Ok(user, "Đăng nhập thành công"));
 		}
 
 		[HttpGet("all")]
 		public async Task<IActionResult> GetAllUsers()
 		{
-			var result = await _userService.GetAllUserInformationAsync();
-			return Ok(result);
+			var users = await _userService.GetAllUserInformationAsync();
+			return Ok(BaseResponse<IEnumerable<ProfileResponseDto>>.Ok(users));
 		}
 
 		[HttpGet("{userId}")]
 		public async Task<IActionResult> GetUserById(Guid userId)
 		{
-			var result = await _userService.GetUserInformationAsync(userId);
-			return Ok(result);
+			var user = await _userService.GetUserInformationAsync(userId);
+			return Ok(BaseResponse<ProfileResponseDto>.Ok(user));
 		}
 
 		[HttpPost("logout")]
 		public async Task<IActionResult> Logout()
 		{
 			await _userService.LogoutAsync();
-			return Ok(new { message = "Đăng xuất thành công." });
+			return Ok(BaseResponse<string>.Ok(null, "Đăng xuất thành công"));
 		}
+
 	}
 }
