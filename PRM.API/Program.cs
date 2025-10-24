@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PRM.API.ChatHubs;
 using PRM.Application.Interfaces;
 using PRM.Application.Interfaces.Repositories;
@@ -9,6 +8,7 @@ using PRM.Application.Services;
 using PRM.Domain.IRepository;
 using PRM.Infrastructure;
 using PRM.Infrastructure.Repositories;
+using PRM.API.Middleware;
 using PRM.Infrastructure.Repository;
 
 namespace PRM.API
@@ -19,10 +19,10 @@ namespace PRM.API
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-
 			builder.Services.AddControllers();
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
+
 			builder.Services.AddDbContext<PRMDbContext>(opt =>
 				opt.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 			builder.Services.AddSingleton<IChatDbContext>(sp =>
@@ -44,6 +44,7 @@ namespace PRM.API
 			builder.Services.AddScoped<IConversationService, ConversationService>();
 			builder.Services.AddScoped<IChatNotifier, SignalRChatNotifier>();
 			builder.Services.AddScoped<IChatService , ChatService>();
+			builder.Services.AddScoped<IUserService, UserService>();
 			builder.Services.AddCors(options =>
 			{
 				options.AddPolicy("AllowAll", policy =>
@@ -63,13 +64,17 @@ namespace PRM.API
                 context.Database.Migrate();
             }
 
-            if (app.Environment.IsDevelopment())
+			if (app.Environment.IsDevelopment())
 			{
 				app.UseSwagger();
 				app.UseSwaggerUI();
 			}
 
 			app.UseHttpsRedirection();
+
+			app.UseMiddleware<ExceptionMiddleware>();
+
+			app.UseCors("AllowAll");
 
 			app.UseAuthorization();
 
