@@ -36,7 +36,8 @@ namespace PRM.API
 			builder.Services.AddScoped<ISupplierService, SupplierService>();
 			builder.Services.AddScoped<IVoucherService, VoucherService>();
 			builder.Services.AddScoped<IUserService, UserService>();
-
+			builder.Services.AddScoped<IProductService, ProductService>();
+			builder.Services.AddScoped<IReviewService, ReviewService>();
 			builder.Services.AddCors(options =>
 			{
 				options.AddPolicy("AllowAll", policy =>
@@ -60,7 +61,7 @@ namespace PRM.API
 				app.UseSwaggerUI();
 			//}
 
-			//app.UseHttpsRedirection();
+		//	app.UseHttpsRedirection();
 
 			app.UseMiddleware<ExceptionMiddleware>();
 
