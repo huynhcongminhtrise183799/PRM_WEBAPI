@@ -51,5 +51,6 @@ namespace PRM.API.Controllers
 			await _userService.LogoutAsync();
 			return Ok(new { message = "Đăng xuất thành công." });
 		}
+
 	}
 }

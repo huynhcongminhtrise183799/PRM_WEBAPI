@@ -56,6 +56,12 @@ namespace PRM.API.Controllers
 			var messages = await _chatService.GetMessagesByConversationIdAsync(conversationId, page);
 			return Ok(new { success = true, data = messages });
 		}
+		[HttpGet("conversation/account/{accountId}")]
+		public async Task<IActionResult> GetConversationIdByAccountId([FromRoute] Guid accountId)
+		{
+			var conversationId = await _chatService.GetConversationIdByAccountId(accountId);
+			return Ok(new { success = true, data = conversationId });
+		}
 
 	}
 }

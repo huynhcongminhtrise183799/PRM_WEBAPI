@@ -11,6 +11,8 @@ namespace PRM.Application.IService
 	{
 		Task<bool> SendMessageAsync(ChatModel chatModel);
 
-		Task<List<GetMessageModel>> GetMessagesByConversationIdAsync(Guid tripId, int page);
+		Task<List<GetMessageModel>> GetMessagesByConversationIdAsync(Guid conversationId, int page);
+
+		Task<Guid> GetConversationIdByAccountId(Guid accountId);
 	}
 }
