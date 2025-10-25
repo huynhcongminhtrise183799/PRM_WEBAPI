@@ -12,6 +12,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\PRM.Application\PRM.Application.csproj" />
 	  <ProjectReference Include="..\PRM.Domain\PRM.Domain.csproj" />
 	</ItemGroup>
 </Project>

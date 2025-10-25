@@ -10,7 +10,6 @@
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PRM.Domain\PRM.Domain.csproj" />
-    <ProjectReference Include="..\PRM.Infrastructure\PRM.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

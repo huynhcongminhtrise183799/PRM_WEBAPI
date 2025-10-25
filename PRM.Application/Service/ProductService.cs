@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FirebaseAdmin.Messaging;
 using PRM.Application.IService;
 using PRM.Application.Model;
 using PRM.Application.Model.Color;
 using PRM.Application.Model.Img;
 using PRM.Application.Model.Product;
 using PRM.Domain.Entities;
+using PRM.Domain.IRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +18,14 @@ namespace PRM.Application.Service
 	public class ProductService : IProductService
 	{
 		private readonly IUnitOfWork _unitOfWork;
-		public ProductService(IUnitOfWork unitOfWork)
+		private readonly IProductRepository _productRepository;
+		private readonly IFirebaseService _firebaseService;
+
+		public ProductService(IUnitOfWork unitOfWork, IProductRepository productRepository, IFirebaseService firebaseService)
 		{
 			_unitOfWork = unitOfWork;
+			_productRepository = productRepository;
+			_firebaseService = firebaseService;
 		}
 
 		public async Task<(bool IsSuccess, string Message, Model.Product.ProductDto? Data)> CreateAsync(CreateProductDto dto)
@@ -76,7 +82,30 @@ namespace PRM.Application.Service
 				var category = await _unitOfWork.Repository<Category>().GetByIdAsync(product.CategoryId);
 				var supplier = await _unitOfWork.Repository<Suppliers>().GetByIdAsync(product.SupplierId);
 
-				var result = new Model.Product.ProductDto
+				var repo =  _unitOfWork.Repository<UserDeviceToken>();
+				var deviceTokens = await repo.GetAllAsync();
+				var tokens = deviceTokens.Select(dt => dt.FCMToken).ToList();
+				if (tokens.Any())
+				{
+					var message = new MulticastMessage()
+					{
+						Notification = new Notification
+						{
+							Title = "🎉 Sản phẩm mới đã về!",
+							Body = $"Khám phá ngay: {product.Name}"
+							// ImageUrl = // (Tùy chọn) Thêm URL ảnh sản phẩm nếu có
+						},
+						//Data = new Dictionary<string, string>() // Gửi thêm data để app xử lý
+						//{
+						//	{ "productId", product.ProductId.ToString() }, // ID sản phẩm
+						//	{ "click_action", "FLUTTER_NOTIFICATION_CLICK" }, // Action mặc định cho Flutter
+						//	{ "screen", "/productDetail" } // Ví dụ: Màn hình cần điều hướng tới
+						//},
+						Tokens = tokens
+					};
+					await _firebaseService.SendMulticastNotificationAsync(message);
+				}
+					var result = new Model.Product.ProductDto
 				{
 					ProductId = product.ProductId,
 					Name = product.Name,
@@ -128,16 +157,9 @@ namespace PRM.Application.Service
 
 		public async Task<IEnumerable<Model.Product.ProductDto>> GetAllAsync()
 		{
-			var query = _unitOfWork.Repository<Product>()
-		.GetQueryable()
-		.Include(p => p.Category)
-		.Include(p => p.Supplier)
-		.Include(p => p.ProductColors)
-			.ThenInclude(pc => pc.ProductImages);
+			var products = await _productRepository.GetAllWithDetailsAsync();
 
-			var products = await query.ToListAsync();
-
-			var result = products.Select(p => new Model.Product.ProductDto
+			return products.Select(p => new Model.Product.ProductDto
 			{
 				ProductId = p.ProductId,
 				Name = p.Name,
@@ -160,25 +182,19 @@ namespace PRM.Application.Service
 					{
 						ProductImageId = img.ProductImageId,
 						ImageUrl = img.ImageUrl,
-						Status = img.Status // nếu field tồn tại
+						Status = img.Status
 					}).ToList()
 				}).ToList()
 			}).ToList();
-
-			return result;
 		}
 
 		public async Task<Model.Product.ProductDto?> GetByIdAsync(Guid id)
 		{
-			var product = await _unitOfWork.Repository<Product>()
-			  .GetQueryable() // nếu repo có hàm này để truy vấn LINQ
-			  .Include(p => p.Category)
-			  .Include(p => p.Supplier)
-			  .Include(p => p.ProductColors)
-				  .ThenInclude(pc => pc.ProductImages)
-			  .FirstOrDefaultAsync(p => p.ProductId == id);
+			var product = await _productRepository.GetByIdWithDetailsAsync(id);
+			if (product == null) return null;
 
-			var result = new Model.Product.ProductDto
+
+			return new Model.Product.ProductDto
 			{
 				ProductId = product.ProductId,
 				Name = product.Name,
@@ -203,21 +219,16 @@ namespace PRM.Application.Service
 						ImageUrl = img.ImageUrl,
 						Status = img.Status
 					}).ToList()
-				}).ToList(),
+				}).ToList()
 			};
-			return result;
 		}
 
 		public async Task<(bool IsSuccess, string Message, Model.Product.ProductDto? Data)> UpdateAsync(Guid id, UpdateProductDto dto)
 		{
 			try
 			{
-				// Lấy product hiện tại từ DB (kèm theo quan hệ)
-				var product = await _unitOfWork.Repository<Product>()
-					.GetQueryable()
-					.Include(p => p.ProductColors)
-						.ThenInclude(pc => pc.ProductImages)
-					.FirstOrDefaultAsync(p => p.ProductId == id);
+
+				var product = await _productRepository.GetByIdWithDetailsAsync(id);
 
 				if (product == null)
 					return (false, "Không tìm thấy sản phẩm.", null);
@@ -230,10 +241,10 @@ namespace PRM.Application.Service
 				product.SupplierId = dto.SupplierId != Guid.Empty ? dto.SupplierId : product.SupplierId;
 				product.Status = dto.Status ?? product.Status;
 
-				//Nếu có danh sách màu mới(update hoặc thêm)
+				
 					if (dto.ProductColors != null && dto.ProductColors.Any())
 				{
-					// Xóa màu cũ (nếu muốn reset lại toàn bộ)
+				
 					_unitOfWork.Repository<ProductColors>().DeleteRange(product.ProductColors);
 
 					foreach (var colorDto in dto.ProductColors)
