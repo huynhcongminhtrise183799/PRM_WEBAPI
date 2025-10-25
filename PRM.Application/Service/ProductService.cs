@@ -5,6 +5,7 @@ using PRM.Application.Model.Color;
 using PRM.Application.Model.Img;
 using PRM.Application.Model.Product;
 using PRM.Domain.Entities;
+using PRM.Domain.IRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +18,11 @@ namespace PRM.Application.Service
 	public class ProductService : IProductService
 	{
 		private readonly IUnitOfWork _unitOfWork;
-		public ProductService(IUnitOfWork unitOfWork)
+		private readonly IProductRepository _productRepository;
+		public ProductService(IUnitOfWork unitOfWork, IProductRepository productRepository)
 		{
 			_unitOfWork = unitOfWork;
+			_productRepository = productRepository;
 		}
 
 		public async Task<(bool IsSuccess, string Message, Model.Product.ProductDto? Data)> CreateAsync(CreateProductDto dto)
@@ -128,16 +131,9 @@ namespace PRM.Application.Service
 
 		public async Task<IEnumerable<Model.Product.ProductDto>> GetAllAsync()
 		{
-			var query = _unitOfWork.Repository<Product>()
-		.GetQueryable()
-		.Include(p => p.Category)
-		.Include(p => p.Supplier)
-		.Include(p => p.ProductColors)
-			.ThenInclude(pc => pc.ProductImages);
+			var products = await _productRepository.GetAllWithDetailsAsync();
 
-			var products = await query.ToListAsync();
-
-			var result = products.Select(p => new Model.Product.ProductDto
+			return products.Select(p => new Model.Product.ProductDto
 			{
 				ProductId = p.ProductId,
 				Name = p.Name,
@@ -160,25 +156,19 @@ namespace PRM.Application.Service
 					{
 						ProductImageId = img.ProductImageId,
 						ImageUrl = img.ImageUrl,
-						Status = img.Status // nếu field tồn tại
+						Status = img.Status
 					}).ToList()
 				}).ToList()
 			}).ToList();
-
-			return result;
 		}
 
 		public async Task<Model.Product.ProductDto?> GetByIdAsync(Guid id)
 		{
-			var product = await _unitOfWork.Repository<Product>()
-			  .GetQueryable() // nếu repo có hàm này để truy vấn LINQ
-			  .Include(p => p.Category)
-			  .Include(p => p.Supplier)
-			  .Include(p => p.ProductColors)
-				  .ThenInclude(pc => pc.ProductImages)
-			  .FirstOrDefaultAsync(p => p.ProductId == id);
+			var product = await _productRepository.GetByIdWithDetailsAsync(id);
+			if (product == null) return null;
 
-			var result = new Model.Product.ProductDto
+
+			return new Model.Product.ProductDto
 			{
 				ProductId = product.ProductId,
 				Name = product.Name,
@@ -203,21 +193,16 @@ namespace PRM.Application.Service
 						ImageUrl = img.ImageUrl,
 						Status = img.Status
 					}).ToList()
-				}).ToList(),
+				}).ToList()
 			};
-			return result;
 		}
 
 		public async Task<(bool IsSuccess, string Message, Model.Product.ProductDto? Data)> UpdateAsync(Guid id, UpdateProductDto dto)
 		{
 			try
 			{
-				// Lấy product hiện tại từ DB (kèm theo quan hệ)
-				var product = await _unitOfWork.Repository<Product>()
-					.GetQueryable()
-					.Include(p => p.ProductColors)
-						.ThenInclude(pc => pc.ProductImages)
-					.FirstOrDefaultAsync(p => p.ProductId == id);
+
+				var product = await _productRepository.GetByIdWithDetailsAsync(id);
 
 				if (product == null)
 					return (false, "Không tìm thấy sản phẩm.", null);
@@ -230,10 +215,10 @@ namespace PRM.Application.Service
 				product.SupplierId = dto.SupplierId != Guid.Empty ? dto.SupplierId : product.SupplierId;
 				product.Status = dto.Status ?? product.Status;
 
-				//Nếu có danh sách màu mới(update hoặc thêm)
+				
 					if (dto.ProductColors != null && dto.ProductColors.Any())
 				{
-					// Xóa màu cũ (nếu muốn reset lại toàn bộ)
+				
 					_unitOfWork.Repository<ProductColors>().DeleteRange(product.ProductColors);
 
 					foreach (var colorDto in dto.ProductColors)

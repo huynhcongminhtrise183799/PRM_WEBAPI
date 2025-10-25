@@ -6,7 +6,9 @@ using PRM.Application.Interfaces.Repositories;
 using PRM.Application.Services;
 using PRM.Infrastructure;
 using PRM.Infrastructure.Repositories;
-using PRM.API.Middleware;            
+using PRM.API.Middleware;
+using PRM.Domain.IRepository;
+using PRM.Infrastructure.Repository;
 
 namespace PRM.API
 {
@@ -30,7 +32,8 @@ namespace PRM.API
 			builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 			builder.Services.AddScoped<ISupplierRepository, SupplierRepository>();
 			builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
-
+			builder.Services.AddScoped<IProductRepository, ProductRepository>();
+			builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 			// Đăng ký Service
 			builder.Services.AddScoped<ICategoryService, CategoryService>();
 			builder.Services.AddScoped<ISupplierService, SupplierService>();
@@ -51,6 +54,7 @@ namespace PRM.API
 			using (var scope = app.Services.CreateScope())
 			{
 				var context = scope.ServiceProvider.GetRequiredService<PRMDbContext>();
+				
 				context.Database.Migrate();
 			}
 
