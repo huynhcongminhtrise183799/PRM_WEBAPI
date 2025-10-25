@@ -16,12 +16,14 @@ namespace PRM.Application.Service
 		private readonly IMessageRepository _messageRepository;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IConversationRepository _conversationRepository;
-		public ChatService(IChatNotifier chatNotifier, IMessageRepository messageRepository, IUnitOfWork unitOfWork, IConversationRepository conversationRepository)
+		private readonly IUserService _userService;
+		public ChatService(IChatNotifier chatNotifier, IMessageRepository messageRepository, IUnitOfWork unitOfWork, IConversationRepository conversationRepository, IUserService userService)
 		{
 			_chatNotifier = chatNotifier;
 			_messageRepository = messageRepository;
 			_unitOfWork = unitOfWork;
 			_conversationRepository = conversationRepository;
+			_userService = userService;
 		}
 
 		public async Task<Guid> GetConversationIdByAccountId(Guid accountId)
@@ -29,7 +31,15 @@ namespace PRM.Application.Service
 			var conversation = await _conversationRepository.GetConversationByAccountId(accountId);
 			if (conversation == null)
 			{
-				return Guid.Empty;
+				var admin = await _userService.GetAdmin();
+				var newConversation = new Conversation
+				{
+					ConservationId = Guid.NewGuid(),
+					UserId = accountId,
+					AdminId = admin.UserId,
+				};
+				await _conversationRepository.Add(newConversation);
+				return newConversation.ConservationId;
 			}
 			return conversation.ConservationId;
 		}
