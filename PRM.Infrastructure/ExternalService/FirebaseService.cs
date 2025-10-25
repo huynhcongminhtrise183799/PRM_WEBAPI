@@ -59,7 +59,7 @@ namespace PRM.Infrastructure.ExternalService
 				}
 
 				if (response.SuccessCount > 0)
-				{
+	{
 					_logger.LogInformation("Successfully sent notification to {SuccessCount} devices.", response.SuccessCount);
 				}
 

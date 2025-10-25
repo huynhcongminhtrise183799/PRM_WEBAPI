@@ -105,7 +105,7 @@ namespace PRM.Application.Service
 					};
 					await _firebaseService.SendMulticastNotificationAsync(message);
 				}
-					var result = new Model.Product.ProductDto
+				var result = new Model.Product.ProductDto
 				{
 					ProductId = product.ProductId,
 					Name = product.Name,

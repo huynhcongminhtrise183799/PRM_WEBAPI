@@ -104,6 +104,7 @@ namespace PRM.Application.Service
 				UserId = r.UserId,
 				Email = r.User?.Email,
 				ProductId = r.ProductId,
+
 				User = new MinimalUserDto
 				{
 					UserId = r.User?.UserId ?? Guid.Empty,
@@ -115,6 +116,7 @@ namespace PRM.Application.Service
 					Name = r.Product?.Name
 				}
 			}).ToList();
+
 		}
 	}
 }
