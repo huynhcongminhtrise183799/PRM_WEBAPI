@@ -39,6 +39,8 @@ namespace PRM.Infrastructure
 		public DbSet<Voucher> Vouchers { get; set; }
 
 		public DbSet<Suppliers> Suppliers { get; set; }
+
+		public DbSet<UserDeviceToken> UserDeviceTokens { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<User>(entity =>
@@ -176,6 +178,16 @@ namespace PRM.Infrastructure
 				entity.HasKey(e => e.VoucherId);
 				entity.Property(e => e.VoucherId).ValueGeneratedOnAdd();
 
+			});
+			modelBuilder.Entity<UserDeviceToken>(entity =>
+			{
+				entity.ToTable("UserDeviceTokens");
+				entity.HasKey(e => e.UserDeviceTokenId);
+				entity.Property(e => e.UserDeviceTokenId).ValueGeneratedOnAdd();
+
+				entity.HasOne(e => e.User)
+					  .WithMany(u => u.UserDeviceTokens)
+					  .HasForeignKey(e => e.UserId);
 			});
 
 		}

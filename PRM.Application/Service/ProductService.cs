@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FirebaseAdmin.Messaging;
 using PRM.Application.IService;
 using PRM.Application.Model;
 using PRM.Application.Model.Color;
@@ -19,10 +19,13 @@ namespace PRM.Application.Service
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IProductRepository _productRepository;
-		public ProductService(IUnitOfWork unitOfWork, IProductRepository productRepository)
+		private readonly IFirebaseService _firebaseService;
+
+		public ProductService(IUnitOfWork unitOfWork, IProductRepository productRepository, IFirebaseService firebaseService)
 		{
 			_unitOfWork = unitOfWork;
 			_productRepository = productRepository;
+			_firebaseService = firebaseService;
 		}
 
 		public async Task<(bool IsSuccess, string Message, Model.Product.ProductDto? Data)> CreateAsync(CreateProductDto dto)
@@ -79,6 +82,29 @@ namespace PRM.Application.Service
 				var category = await _unitOfWork.Repository<Category>().GetByIdAsync(product.CategoryId);
 				var supplier = await _unitOfWork.Repository<Suppliers>().GetByIdAsync(product.SupplierId);
 
+				var repo =  _unitOfWork.Repository<UserDeviceToken>();
+				var deviceTokens = await repo.GetAllAsync();
+				var tokens = deviceTokens.Select(dt => dt.FCMToken).ToList();
+				if (tokens.Any())
+				{
+					var message = new MulticastMessage()
+					{
+						Notification = new Notification
+						{
+							Title = "🎉 Sản phẩm mới đã về!",
+							Body = $"Khám phá ngay: {product.Name}"
+							// ImageUrl = // (Tùy chọn) Thêm URL ảnh sản phẩm nếu có
+						},
+						//Data = new Dictionary<string, string>() // Gửi thêm data để app xử lý
+						//{
+						//	{ "productId", product.ProductId.ToString() }, // ID sản phẩm
+						//	{ "click_action", "FLUTTER_NOTIFICATION_CLICK" }, // Action mặc định cho Flutter
+						//	{ "screen", "/productDetail" } // Ví dụ: Màn hình cần điều hướng tới
+						//},
+						Tokens = tokens
+					};
+					await _firebaseService.SendMulticastNotificationAsync(message);
+				}
 				var result = new Model.Product.ProductDto
 				{
 					ProductId = product.ProductId,

@@ -14,5 +14,7 @@ namespace PRM.Application.IService
 		Task<IEnumerable<ProfileResponseDto>> GetAllUserInformationAsync();
 		Task<ProfileResponseDto> GetUserInformationAsync(Guid userId);
 		Task LogoutAsync();
+
+		Task<UserResponseDto> GetAdmin();
 	}
 }

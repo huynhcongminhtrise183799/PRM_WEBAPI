@@ -5,10 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
+	<ItemGroup>
+		<PackageReference Include="FirebaseAdmin" Version="3.4.0" />
+	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PRM.Domain\PRM.Domain.csproj" />
-	 <ProjectReference Include="..\PRM.Infrastructure\PRM.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
