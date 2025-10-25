@@ -47,6 +47,7 @@ namespace PRM.API
 			builder.Services.AddScoped<IUserService, UserService>();
 			builder.Services.AddScoped<IProductService, ProductService>();
 			builder.Services.AddScoped<IReviewService, ReviewService>();
+			builder.Services.AddScoped<IUserDeviceTokenService, UserDeviceTokenService>();		
 			builder.Services.AddCors(options =>
 			{
 				options.AddPolicy("AllowAll", policy =>
