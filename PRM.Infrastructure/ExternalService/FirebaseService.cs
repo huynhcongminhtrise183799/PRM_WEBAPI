@@ -34,7 +34,7 @@ namespace PRM.Infrastructure.ExternalService
 			}
 
 			_logger.LogInformation("Attempting to send multicast notification to {TokenCount} devices.", message.Tokens.Count);
-
+			 
 			try
 			{
 				BatchResponse response = await _firebaseMessaging.SendEachForMulticastAsync(message);
