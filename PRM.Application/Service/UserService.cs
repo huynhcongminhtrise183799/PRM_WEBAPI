@@ -70,6 +70,58 @@ namespace PRM.Application.Service
 			};
 		}
 
+		public async Task<UserResponseDto> RegisterAdminAsync(RegisterDto dto)
+		{
+			if (string.IsNullOrWhiteSpace(dto.Email))
+				throw new InvalidException("Email không được để trống.", 400, "EMAIL_REQUIRED");
+
+			if (string.IsNullOrWhiteSpace(dto.Password))
+				throw new InvalidException("Mật khẩu không được để trống.", 400, "PASSWORD_REQUIRED");
+
+			if (string.IsNullOrWhiteSpace(dto.ConfirmPassword))
+				throw new InvalidException("Vui lòng xác nhận mật khẩu.", 400, "CONFIRM_PASSWORD_REQUIRED");
+
+			if (dto.Password != dto.ConfirmPassword)
+				throw new InvalidException("Mật khẩu xác nhận không khớp.", 400, "PASSWORD_MISMATCH");
+
+			if (string.IsNullOrWhiteSpace(dto.FullName))
+				throw new InvalidException("Họ tên không được để trống.", 400, "FULLNAME_REQUIRED");
+
+			if (string.IsNullOrWhiteSpace(dto.Phone))
+				throw new InvalidException("Số điện thoại không được để trống.", 400, "PHONE_REQUIRED");
+
+			var userRepo = _unitOfWork.Repository<User>();
+
+			var existing = (await userRepo.FindAsync(u => u.Email == dto.Email)).FirstOrDefault();
+			if (existing != null)
+				throw new AppException("Email này đã được đăng ký.", 400, "EMAIL_EXISTS");
+
+			var hashedPassword = HashPassword(dto.Password);
+
+			var user = new User
+			{
+				UserId = Guid.NewGuid(),
+				Email = dto.Email.Trim(),
+				Password = hashedPassword,
+				FullName = dto.FullName.Trim(),
+				Phone = dto.Phone.Trim(),
+				Role = UserRole.Admin.ToString(),
+				Status = UserStatus.Active.ToString()
+			};
+
+			await userRepo.AddAsync(user);
+			await _unitOfWork.SaveChangesAsync();
+
+			return new UserResponseDto
+			{
+				UserId = user.UserId,
+				Email = user.Email,
+				FullName = user.FullName,
+				Role = user.Role,
+				Status = user.Status
+			};
+		}
+
 		public async Task<UserResponseDto> LoginAsync(LoginDto dto)
 		{
 			if (string.IsNullOrWhiteSpace(dto.Email))
@@ -98,6 +150,7 @@ namespace PRM.Application.Service
 				UserId = user.UserId,
 				Email = user.Email,
 				FullName = user.FullName,
+				Phone = user.Phone,
 				Role = user.Role,
 				Status = user.Status
 			};
@@ -157,5 +210,50 @@ namespace PRM.Application.Service
 			var hash = HashPassword(inputPassword);
 			return hash == hashedPassword;
 		}
+
+		public async Task<UserResponseDto> GetAdmin()
+		{
+			var userRepo = _unitOfWork.Repository<User>();
+			var admin = await userRepo.GetAsync(u => u.Role == UserRole.Admin.ToString());
+			if (admin == null)
+				throw new AppException("Admin not found.", 404, "ADMIN_NOT_FOUND");
+			var adminDto = new UserResponseDto
+			{
+				UserId = admin.UserId,
+				Email = admin.Email,
+				FullName = admin.FullName,
+				Role = admin.Role,
+				Status = admin.Status
+			};
+			return adminDto;
+		}
+		public async Task<UserResponseDto> UpdateProfileAsync(Guid userId, UpdateProfileRequestDto updateDto)
+		{
+			var userRepo = _unitOfWork.Repository<User>();
+			var user = await userRepo.GetByIdAsync(userId);
+
+			if (user == null)
+				throw new AppException("User not found.", 404, "USER_NOT_FOUND");
+
+			if (!string.IsNullOrWhiteSpace(updateDto.FullName))
+				user.FullName = updateDto.FullName;
+
+			if (!string.IsNullOrWhiteSpace(updateDto.Phone))
+				user.Phone = updateDto.Phone;
+
+			userRepo.Update(user);
+
+			await _unitOfWork.SaveChangesAsync();
+			return new UserResponseDto
+			{
+				UserId = user.UserId,
+				Email = user.Email,
+				FullName = user.FullName,
+				Phone = user.Phone,
+				Role = user.Role,
+				Status = user.Status
+			};
+		}
+
 	}
 }

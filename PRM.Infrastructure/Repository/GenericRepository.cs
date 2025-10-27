@@ -56,4 +56,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 	{
 		_context.Set<T>().RemoveRange(entities);
 	}
+
+	public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate)
+	{
+		return await _dbSet.FirstOrDefaultAsync(predicate);
+	}
 }

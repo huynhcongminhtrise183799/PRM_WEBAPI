@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PRM.Application.IService;
+﻿using PRM.Application.IService;
 using PRM.Application.Model.Review;
 using PRM.Domain.Entities;
 using PRM.Domain.IRepository;
@@ -19,6 +18,7 @@ namespace PRM.Application.Service
 		public ReviewService(IUnitOfWork unitOfWork, IReviewRepository reviewRepository)
 		{
 			_unitOfWork = unitOfWork;
+			_reviewRepository = reviewRepository;
 		}
 
 		public async Task<(bool IsSuccess, string Message, ReviewDto? Data)> CreateAsync(CreateReviewDto dto)
