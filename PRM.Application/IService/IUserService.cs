@@ -10,11 +10,12 @@ namespace PRM.Application.IService
 	public interface IUserService
 	{
 		Task<UserResponseDto> RegisterAsync(RegisterDto dto);
+		Task<UserResponseDto> RegisterAdminAsync(RegisterDto dto);
 		Task<UserResponseDto> LoginAsync(LoginDto dto);
 		Task<IEnumerable<ProfileResponseDto>> GetAllUserInformationAsync();
 		Task<ProfileResponseDto> GetUserInformationAsync(Guid userId);
 		Task LogoutAsync();
-
 		Task<UserResponseDto> GetAdmin();
+		Task<UserResponseDto> UpdateProfileAsync(Guid userId, UpdateProfileRequestDto updateDto);
 	}
 }

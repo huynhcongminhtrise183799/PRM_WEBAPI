@@ -39,13 +39,16 @@ namespace PRM.API
 			{
 				var connectionString = builder.Configuration.GetConnectionString("MongoDb");
 				var dbName = builder.Configuration["MongoDbSettings:DatabaseName"];
-				// Thêm kiểm tra null/empty cho connectionString và dbName
+
+				Console.WriteLine($"🔍 Mongo connection string: {connectionString}");
+				Console.WriteLine($"🔍 Mongo database: {dbName}");
+
 				if (string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(dbName))
-				{
 					throw new InvalidOperationException("MongoDB connection string or database name is not configured properly.");
-				}
+
 				return new ChatDbContext(connectionString, dbName);
 			});
+
 
 			// SignalR
 			builder.Services.AddSignalR();
