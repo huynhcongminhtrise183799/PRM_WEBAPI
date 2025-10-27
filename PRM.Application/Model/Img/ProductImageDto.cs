@@ -12,7 +12,5 @@ namespace PRM.Application.Model.Img
 		public Guid ProductImageId { get; set; }
 		public string ImageUrl { get; set; }
 		public string Status { get; set; }
-
-	
 	}
 }

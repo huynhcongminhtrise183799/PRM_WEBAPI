@@ -62,9 +62,10 @@ namespace PRM.API
 			builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 			builder.Services.AddScoped<IProductRepository, ProductRepository>();
 			builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-
-
-			// Application Services
+			builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
+			builder.Services.AddScoped<ICartRepository, CartRepository>();
+			builder.Services.AddScoped<IProductColorRepository, ProductColorRepository>();
+			// Đăng ký Service
 			builder.Services.AddScoped<ICategoryService, CategoryService>();
 			builder.Services.AddScoped<ISupplierService, SupplierService>();
 			builder.Services.AddScoped<IVoucherService, VoucherService>();
@@ -80,6 +81,8 @@ namespace PRM.API
 			builder.Services.AddScoped<IFirebaseService, FirebaseService>();
 
 			// CORS
+			builder.Services.AddScoped<ICartItemService, CartItemService>();
+			
 			builder.Services.AddCors(options =>
 			{
 				options.AddPolicy("AllowAll", policy =>
