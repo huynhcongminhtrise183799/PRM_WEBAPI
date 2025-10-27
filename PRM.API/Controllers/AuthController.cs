@@ -24,6 +24,13 @@ namespace PRM.API.Controllers
 			return Ok(BaseResponse<UserResponseDto>.Ok(user, "Đăng ký thành công"));
 		}
 
+		[HttpPost("register/admin")]
+		public async Task<IActionResult> RegisterAdmin([FromBody] RegisterDto dto)
+		{
+			var user = await _userService.RegisterAdminAsync(dto);
+			return Ok(BaseResponse<UserResponseDto>.Ok(user, "Đăng ký thành công"));
+		}
+
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginDto dto)
 		{
@@ -52,5 +59,11 @@ namespace PRM.API.Controllers
 			return Ok(BaseResponse<string>.Ok(null, "Đăng xuất thành công"));
 		}
 
+		[HttpPut("{userId}/update-profile")]
+		public async Task<IActionResult> UpdateProfile(Guid userId, [FromBody] UpdateProfileRequestDto updateDto)
+		{
+			var updatedUser = await _userService.UpdateProfileAsync(userId, updateDto);
+			return Ok(BaseResponse<UserResponseDto>.Ok(updatedUser, "Cập nhật thông tin thành công"));
+		}
 	}
 }
