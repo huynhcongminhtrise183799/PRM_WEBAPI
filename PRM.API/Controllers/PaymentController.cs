@@ -22,8 +22,15 @@ namespace PRM.API.Controllers
 		{
 			try
 			{
-				var paymentUrl = await _paymentService.CreatePaymentUrlAsync(userId);
-				return Ok(new { paymentUrl });
+				var result = await _paymentService.CreatePaymentUrlAsync(userId);
+				if (result == null)
+					return BadRequest(new { message = "Không tạo được đơn hàng" });
+
+				return Ok(new
+				{
+					orderId = result.OrderId,
+					paymentUrl = result.PaymentUrl
+				});
 			}
 			catch (Exception ex)
 			{

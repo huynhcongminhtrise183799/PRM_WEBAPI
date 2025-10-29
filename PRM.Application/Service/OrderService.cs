@@ -1,4 +1,5 @@
 ﻿using PRM.Application.IService;
+using PRM.Application.Model.Order;
 using PRM.Domain.Entities;
 using PRM.Domain.IRepository;
 using System;
@@ -67,7 +68,22 @@ namespace PRM.Application.Service
 
 			return order;
 		}
-		
 
+		public async Task<List<OrderHistoryDto>> GetOrderHistoryByUserAsync(Guid userId)
+		{
+			var orders = await _orderRepository.GetOrdersByUserAsync(userId);
+
+			var orderDtos = orders.Select(o => new OrderHistoryDto
+			{
+				OrderId = o.OrderId,
+				TotalAmount = o.TotalAmount,
+				Status = o.Status,
+				PaymentStatus = o.PaymentStatus,
+				PaymentMethod = o.Payments?.Method ?? "N/A",
+				PaymentDate = o.Payments?.PaymentDate
+			}).ToList();
+
+			return orderDtos;
+		}
 	}
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using PRM.Application.Helper;
 using PRM.Application.IService;
+using PRM.Application.Model.Payment;
 using PRM.Domain.Entities;
 using PRM.Domain.IRepository;
 using System;
@@ -21,16 +22,18 @@ namespace PRM.Application.Service
 		private readonly IOrderRepository _orderRepository;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IOrderService _orderService;
-		public PaymentService(IConfiguration config, IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IHttpContextAccessor httpContextAccessor)
+		private readonly IPaymentRepository _paymentRepository;
+		public PaymentService(IConfiguration config, IOrderRepository orderRepository, IUnitOfWork unitOfWork, IOrderService orderService, IHttpContextAccessor httpContextAccessor, IPaymentRepository paymentRepository)
 		{
 			_config = config;
 			_orderRepository = orderRepository;
 			_unitOfWork = unitOfWork;
 			_orderService = orderService;
 			_httpContextAccessor = httpContextAccessor;
+			_paymentRepository = paymentRepository;
 		}
 
-		public async Task<string> CreatePaymentUrlAsync(Guid userId)
+		public async Task<PaymentResponseDto> CreatePaymentUrlAsync(Guid userId)
 		{
 			var order = await _orderService.CreateOrderFromCartAsync(userId);
 			await _unitOfWork.SaveChangesAsync();
@@ -56,7 +59,11 @@ namespace PRM.Application.Service
 				_config["Vnpay:HashSecret"]
 			);
 
-			return paymentUrl;
+			return new PaymentResponseDto
+			{
+				OrderId = order.OrderId,
+				PaymentUrl = paymentUrl
+			};
 		}
 
 		public async Task<bool> PaymentCallbackAsync(IQueryCollection vnp_Params)
@@ -96,7 +103,9 @@ namespace PRM.Application.Service
 				return (false, "Order not found.");
 
 
-			var payment = await _unitOfWork.Repository<Payments>().GetByIdAsync(orderId);
+			var payment = await _paymentRepository.GetByOrderIdAsync(orderId);
+			if (payment == null)
+				return (false, "Payment record not found.");
 
 			if (payment == null)
 				return (false, "Payment record not found.");

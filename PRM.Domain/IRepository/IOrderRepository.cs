@@ -12,5 +12,7 @@ namespace PRM.Domain.IRepository
 		Task<Order> GetOrderWithItemsAsync(Guid orderId);
 		Task<IEnumerable<Order>> GetOrdersByUserIdAsync(Guid userId);
 		Task<bool> IsPaidAsync(Guid orderId);
+		Task<List<Order>> GetOrdersByUserAsync(Guid userId);
+
 	}
 }

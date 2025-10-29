@@ -16,6 +16,16 @@ namespace PRM.Infrastructure.Repository
 		{
 			_context = context;
 		}
+
+		public async Task<List<Order>> GetOrdersByUserAsync(Guid userId)
+		{
+			return await _context.Orders
+			.Where(o => o.UserId == userId)
+			.Include(o => o.Payments)
+			.OrderByDescending(o => o.OrderId)
+			.ToListAsync();
+		}
+
 		public async Task<IEnumerable<Order>> GetOrdersByUserIdAsync(Guid userId)
 		{
 			return await _context.Orders

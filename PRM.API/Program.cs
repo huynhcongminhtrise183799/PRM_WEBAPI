@@ -68,7 +68,8 @@ namespace PRM.API
 			builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
 			builder.Services.AddScoped<ICartRepository, CartRepository>();
 			builder.Services.AddScoped<IProductColorRepository, ProductColorRepository>();
-		    builder.Services.AddScoped<IOrderRepository, OrderRepository>();	
+		    builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+			builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 			// Đăng ký Service
 			builder.Services.AddScoped<ICategoryService, CategoryService>();
 			builder.Services.AddScoped<ISupplierService, SupplierService>();
