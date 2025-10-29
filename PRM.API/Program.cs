@@ -65,6 +65,7 @@ namespace PRM.API
 			builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
 			builder.Services.AddScoped<ICartRepository, CartRepository>();
 			builder.Services.AddScoped<IProductColorRepository, ProductColorRepository>();
+		    builder.Services.AddScoped<IOrderRepository, OrderRepository>();	
 			// Đăng ký Service
 			builder.Services.AddScoped<ICategoryService, CategoryService>();
 			builder.Services.AddScoped<ISupplierService, SupplierService>();
@@ -76,6 +77,8 @@ namespace PRM.API
 			builder.Services.AddScoped<IProductService, ProductService>();
 			builder.Services.AddScoped<IReviewService, ReviewService>();
 			builder.Services.AddScoped<IUserDeviceTokenService, UserDeviceTokenService>();
+			builder.Services.AddScoped<IPaymentService, PaymentService>();
+			builder.Services.AddScoped<IOrderService, OrderService>();
 
 			// External Services (Firebase)
 			builder.Services.AddScoped<IFirebaseService, FirebaseService>();
@@ -120,6 +123,7 @@ namespace PRM.API
 				throw;
 			}
 			builder.Services.AddSingleton(FirebaseMessaging.DefaultInstance);
+			builder.Services.AddHttpContextAccessor();
 			var app = builder.Build();
 			try
 			{

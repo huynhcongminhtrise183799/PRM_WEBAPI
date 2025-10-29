@@ -37,9 +37,9 @@ namespace PRM.Domain.Entities
 
 		public double TotalAmount { get; set; }
 
-		public string Status { get; set; } // pending | processing | shipped | delivered | cancelled
+		public string Status { get; set; }
 
-		public string PaymentStatus { get; set; } // paid | unpaid | refunded
+		public string PaymentStatus { get; set; }
 
 		public User User { get; set; }
 
