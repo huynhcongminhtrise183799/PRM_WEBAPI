@@ -21,9 +21,10 @@ namespace PRM.Infrastructure.Repository
 		public async Task<Cart> GetOrCreateCartAsync(Guid userId)
 		{
 			var cart = await _context.Carts
-			  .FirstOrDefaultAsync(c => c.UserId == userId);
-
-			
+			.Include(c => c.CartItems)
+				.ThenInclude(ci => ci.ProductColor)
+					.ThenInclude(pc => pc.Product)
+			.FirstOrDefaultAsync(c => c.UserId == userId);
 			if (cart == null)
 			{
 				cart = new Cart
