@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace PRM.Domain.IRepository
 {
-	public interface ICartRepository : IGenericRepository<Cart>
+	public interface IOrderItemRepository
 	{
-		Task<Cart> GetOrCreateCartAsync(Guid userId);
-		Task<Cart> GetCartWithItemsAsync(Guid userId);
+		void AddRange(IEnumerable<OrderItem> orderItems);
 	}
 }

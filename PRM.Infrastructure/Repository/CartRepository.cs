@@ -40,5 +40,24 @@ namespace PRM.Infrastructure.Repository
 
 			return cart;
 		}
+		public async Task<Cart> GetCartWithItemsAsync(Guid userId)
+		{
+			var cart = await _context.Carts
+			.Include(c => c.CartItems)
+				.ThenInclude(ci => ci.ProductColor)
+					.ThenInclude(pc => pc.Product)
+			.FirstOrDefaultAsync(c => c.UserId == userId);
+			if (cart == null)
+			{
+				cart = new Cart
+				{
+					UserId = userId,
+					CartItems = new List<CartItem>()
+				};
+			}
+			cart.CartItems ??= new List<CartItem>();
+
+			return cart;
+		}
 	}
 }

@@ -10,5 +10,6 @@ namespace PRM.Domain.IRepository
 	public interface ICartItemRepository : IGenericRepository<CartItem>
 	{
 		Task<IEnumerable<CartItem>> GetItemsByCartIdAsync(Guid cartId);
+	    
 	}
 }
