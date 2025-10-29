@@ -13,4 +13,5 @@ public interface IGenericRepository<T> where T : class
 
 	IQueryable<T> GetQueryable();
 	void DeleteRange(IEnumerable<T> entities);
+	
 }
