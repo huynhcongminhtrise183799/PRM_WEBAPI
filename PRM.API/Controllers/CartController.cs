@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PRM.API.DTOs.Request;
+using PRM.Application.Common;
 using PRM.Application.IService;
+using PRM.Domain.Entities;
 
 namespace PRM.API.Controllers
 {
@@ -14,12 +17,10 @@ namespace PRM.API.Controllers
 		}
 
 		[HttpPost("initialize")]
-		public async Task<IActionResult> InitializeCart([FromQuery] Guid userId)
+		public async Task<IActionResult> InitializeCart([FromBody] CreateCartRequest request)
 		{
-			if (userId == Guid.Empty)
-				return BadRequest("User ID is required.");
 
-			var cart = await _cartService.InitializeUserCartAsync(userId);
+			var cart = await _cartService.InitializeUserCartAsync(request.UserId);
 			return Ok(cart);
 		}
 
