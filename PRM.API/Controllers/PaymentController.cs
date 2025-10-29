@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PRM.API.DTOs.Response;
+using PRM.Application.Common;
 using PRM.Application.IService;
 
 namespace PRM.API.Controllers
@@ -58,6 +60,20 @@ namespace PRM.API.Controllers
 			if (isSuccess)
 				return Ok(new { success = true, message });
 			return BadRequest(new { success = false, message });
+		}
+
+		[HttpGet("total-paid")]
+		public async Task<IActionResult> GetTotalPaidAmountByDate([FromQuery] DateTime date)
+		{
+			var totalAmount = await _paymentService.GetTotalPaidAmountByDateAsync(date);
+
+			var result = new TotalPaidResponseDto
+			{
+				Date = date.ToString("yyyy-MM-dd"),
+				TotalPaidAmount = totalAmount
+			};
+
+			return Ok(BaseResponse<TotalPaidResponseDto>.Ok(result));
 		}
 	}
 }

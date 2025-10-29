@@ -12,5 +12,6 @@ namespace PRM.Application.IService
 		Task<string> CreatePaymentUrlAsync(Guid userId);
 		Task<bool> PaymentCallbackAsync(IQueryCollection vnp_Params);
 		Task<(bool IsSuccess, string Message)> UpdatePaymentStatusAsync(Guid orderId, string responseCode);
+		Task<long> GetTotalPaidAmountByDateAsync(DateTime date);
 	}
 }

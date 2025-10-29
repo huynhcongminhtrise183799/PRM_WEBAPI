@@ -124,5 +124,22 @@ namespace PRM.Application.Service
 				return (false, $"Payment failed. Code: {responseCode}");
 			}
 		}
+
+		public async Task<long> GetTotalPaidAmountByDateAsync(DateTime date)
+		{
+			var paymentRepo = _unitOfWork.Repository<Payments>();
+			var targetDate = DateOnly.FromDateTime(date);
+
+			var payments = await paymentRepo.GetAllAsync();
+
+			var filteredPayments = payments
+				.Where(p => p.Status == "Paid" && p.PaymentDate == targetDate)
+				.ToList();
+
+			if (!filteredPayments.Any())
+				return 0;
+
+			return (long)filteredPayments.Sum(p => p.Amount);
+		}
 	}
 }

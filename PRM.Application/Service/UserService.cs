@@ -254,6 +254,15 @@ namespace PRM.Application.Service
 				Status = user.Status
 			};
 		}
+		public async Task<int> GetTotalUsersAsync()
+		{
+			var userRepo = _unitOfWork.Repository<User>();
+			var users = await userRepo.GetAllAsync();
 
+			if (users == null || !users.Any())
+				return 0;
+
+			return users.Count();
+		}
 	}
 }
