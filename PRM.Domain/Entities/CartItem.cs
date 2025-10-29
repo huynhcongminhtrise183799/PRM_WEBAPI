@@ -7,13 +7,6 @@ using System.Threading.Tasks;
 
 namespace PRM.Domain.Entities
 {
-	/*
-	 id bigint [pk, increment]
-  cart_id bigint
-  product_color_id bigint
-  quantity int
-  unit_price decimal(12,2)
-  added_at timestamp*/
 	public class CartItem
 	{
 		public Guid CartItemId { get; set; }

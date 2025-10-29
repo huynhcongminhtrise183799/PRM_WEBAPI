@@ -21,9 +21,10 @@ namespace PRM.Infrastructure.Repository
 		public async Task<Cart> GetOrCreateCartAsync(Guid userId)
 		{
 			var cart = await _context.Carts
-			  .FirstOrDefaultAsync(c => c.UserId == userId);
-
-			
+			.Include(c => c.CartItems)
+				.ThenInclude(ci => ci.ProductColor)
+					.ThenInclude(pc => pc.Product)
+			.FirstOrDefaultAsync(c => c.UserId == userId);
 			if (cart == null)
 			{
 				cart = new Cart
@@ -43,10 +44,13 @@ namespace PRM.Infrastructure.Repository
 		public async Task<Cart> GetCartWithItemsAsync(Guid userId)
 		{
 			var cart = await _context.Carts
-			.Include(c => c.CartItems)
-				.ThenInclude(ci => ci.ProductColor)
-					.ThenInclude(pc => pc.Product)
-			.FirstOrDefaultAsync(c => c.UserId == userId);
+		   .Include(c => c.CartItems)
+			   .ThenInclude(ci => ci.ProductColor)
+				   .ThenInclude(pc => pc.Product)
+		   .Include(c => c.CartItems)
+			   .ThenInclude(ci => ci.ProductColor)
+				   .ThenInclude(pc => pc.ProductImages) // 🔹 thêm dòng này
+		   .FirstOrDefaultAsync(c => c.UserId == userId);
 			if (cart == null)
 			{
 				cart = new Cart
