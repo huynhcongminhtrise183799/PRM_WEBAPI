@@ -45,7 +45,7 @@ namespace PRM.Application.Service
 				};
 
 				await _unitOfWork.Repository<Product>().AddAsync(product);
-			
+
 
 				foreach (var colorDto in dto.ProductColors)
 				{
@@ -60,7 +60,7 @@ namespace PRM.Application.Service
 						Status = "active"
 					};
 					await _unitOfWork.Repository<ProductColors>().AddAsync(color);
-				
+
 
 					// Thêm ProductImages
 					if (colorDto.ProductImages != null && colorDto.ProductImages.Any())
@@ -82,27 +82,40 @@ namespace PRM.Application.Service
 				var category = await _unitOfWork.Repository<Category>().GetByIdAsync(product.CategoryId);
 				var supplier = await _unitOfWork.Repository<Suppliers>().GetByIdAsync(product.SupplierId);
 
-				var repo =  _unitOfWork.Repository<UserDeviceToken>();
+				var repo = _unitOfWork.Repository<UserDeviceToken>();
 				var deviceTokens = await repo.GetAllAsync();
 				var tokens = deviceTokens.Select(dt => dt.FCMToken).ToList();
 				if (tokens.Any())
 				{
 					var message = new MulticastMessage()
 					{
-						Notification = new Notification
+						Tokens = tokens,
+
+						// Gửi data để Flutter xử lý hiển thị
+						Data = new Dictionary<string, string>()
+{
+					{ "title", "🎉 Sản phẩm mới đã về!" },
+					{ "body", $"Khám phá ngay: {product.Name}" },
+					{ "screen", "/productDetail" },
+					{ "productId", product.ProductId.ToString() }
+},
+
+						Android = new AndroidConfig
 						{
-							Title = "🎉 Sản phẩm mới đã về!",
-							Body = $"Khám phá ngay: {product.Name}"
-							// ImageUrl = // (Tùy chọn) Thêm URL ảnh sản phẩm nếu có
-						},
-						//Data = new Dictionary<string, string>() // Gửi thêm data để app xử lý
-						//{
-						//	{ "productId", product.ProductId.ToString() }, // ID sản phẩm
-						//	{ "click_action", "FLUTTER_NOTIFICATION_CLICK" }, // Action mặc định cho Flutter
-						//	{ "screen", "/productDetail" } // Ví dụ: Màn hình cần điều hướng tới
-						//},
-						Tokens = tokens
+							Priority = Priority.High,
+							Notification = new AndroidNotification
+							{
+								ChannelId = "high_importance_channel", // trùng với channel Flutter
+								Icon = "ic_stat_notification",          // tên icon trong mipmap
+								Sound = "default",
+								Title = "🎉 Sản phẩm mới đã về!",
+								Body = $"Khám phá ngay: {product.Name}"
+							},
+							TimeToLive = TimeSpan.FromHours(1)
+						}
 					};
+
+					// Gửi đi
 					await _firebaseService.SendMulticastNotificationAsync(message);
 				}
 				var result = new Model.Product.ProductDto
