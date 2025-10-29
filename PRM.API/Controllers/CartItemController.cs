@@ -88,8 +88,9 @@ namespace PRM.API.Controllers
 					price = ci.Price,
 					productName = ci.ProductColor?.Product?.Name,
 					colorName = ci.ProductColor?.ColorName,
-					imageUrl = ci.ProductColor?.ProductImages
-								
+					imageUrl = ci.ProductColor?.ProductImages?.Select(pi => pi.ImageUrl).FirstOrDefault()
+
+
 				});
 
 				return Ok(items);
