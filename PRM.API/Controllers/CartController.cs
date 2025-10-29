@@ -1,0 +1,37 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using PRM.Application.IService;
+
+namespace PRM.API.Controllers
+{
+	[Route("api/[controller]")]
+	[ApiController]
+	public class CartController : ControllerBase
+	{
+		private readonly ICartService _cartService;
+		public CartController(ICartService cartService)
+		{
+			_cartService = cartService;
+		}
+
+		[HttpPost("initialize")]
+		public async Task<IActionResult> InitializeCart([FromQuery] Guid userId)
+		{
+			if (userId == Guid.Empty)
+				return BadRequest("User ID is required.");
+
+			var cart = await _cartService.InitializeUserCartAsync(userId);
+			return Ok(cart);
+		}
+
+		[HttpGet("{userId}")]
+		public async Task<IActionResult> GetCartByUserId(Guid userId)
+		{
+			if (userId == Guid.Empty)
+				return BadRequest("User ID is required.");
+			var cart = await _cartService.GetCartWithItemsAsync(userId);
+			if (cart == null)
+				return NotFound("Cart not found for the specified user.");
+			return Ok(cart);
+		}
+	}
+}
