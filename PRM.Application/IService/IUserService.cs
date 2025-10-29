@@ -17,5 +17,6 @@ namespace PRM.Application.IService
 		Task LogoutAsync();
 		Task<UserResponseDto> GetAdmin();
 		Task<UserResponseDto> UpdateProfileAsync(Guid userId, UpdateProfileRequestDto updateDto);
+		Task<int> GetTotalUsersAsync();
 	}
 }

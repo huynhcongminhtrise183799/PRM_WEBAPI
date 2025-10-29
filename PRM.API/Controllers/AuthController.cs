@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PRM.API.DTOs.Response;
 using PRM.Application.Common;
 using PRM.Application.IService;
 using PRM.Application.Model.Auth;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PRM.API.Controllers
 {
@@ -64,6 +66,17 @@ namespace PRM.API.Controllers
 		{
 			var updatedUser = await _userService.UpdateProfileAsync(userId, updateDto);
 			return Ok(BaseResponse<UserResponseDto>.Ok(updatedUser, "Cập nhật thông tin thành công"));
+		}
+
+		[HttpGet("total-user")]
+		public async Task<IActionResult> GetTotalUsers()
+		{
+			var total = await _userService.GetTotalUsersAsync();
+			var result = new DTOs.Response.TotalUserResponseDto
+			{
+				TotalUser = total
+			};
+			return Ok(BaseResponse<DTOs.Response.TotalUserResponseDto>.Ok(result));
 		}
 	}
 }
