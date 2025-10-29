@@ -26,11 +26,9 @@ namespace PRM.API.Controllers
 		[HttpGet("{userId}")]
 		public async Task<IActionResult> GetCartByUserId(Guid userId)
 		{
-			if (userId == Guid.Empty)
-				return BadRequest("User ID is required.");
+			if (userId == Guid.Empty) return BadRequest("User ID is required.");
 			var cart = await _cartService.GetCartWithItemsAsync(userId);
-			if (cart == null)
-				return NotFound("Cart not found for the specified user.");
+			if (cart == null) return NotFound("Cart not found for the specified user.");
 			return Ok(cart);
 		}
 	}

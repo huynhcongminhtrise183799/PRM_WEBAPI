@@ -28,7 +28,10 @@ namespace PRM.API
 			builder.Logging.AddConsole(); // Hoặc các provider khác
 
 			// Add services to the container.
-			builder.Services.AddControllers();
+			builder.Services.AddControllers()
+	.AddJsonOptions(x =>
+		x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+	);
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
 
@@ -79,6 +82,7 @@ namespace PRM.API
 			builder.Services.AddScoped<IUserDeviceTokenService, UserDeviceTokenService>();
 			builder.Services.AddScoped<IPaymentService, PaymentService>();
 			builder.Services.AddScoped<IOrderService, OrderService>();
+			builder.Services.AddScoped<ICartService, CartService>();
 
 			// External Services (Firebase)
 			builder.Services.AddScoped<IFirebaseService, FirebaseService>();
