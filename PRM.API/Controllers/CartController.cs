@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PRM.Application.Common;
 using PRM.Application.IService;
+using PRM.Domain.Entities;
 
 namespace PRM.API.Controllers
 {

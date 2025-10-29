@@ -19,9 +19,9 @@ namespace PRM.Application.Service
 			_cartRepository = cartRepository;
 		}
 
-		public Task<Cart> GetCartWithItemsAsync(Guid userId)
+		public async Task<Cart> GetCartWithItemsAsync(Guid userId)
 		{
-			var cart = _cartRepository.GetCartWithItemsAsync(userId);
+			var cart = await _cartRepository.GetCartWithItemsAsync(userId);
 			return cart;
 		}
 
