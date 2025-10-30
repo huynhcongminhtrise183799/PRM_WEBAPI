@@ -19,7 +19,7 @@ namespace PRM.Application.Model.Product
 
 		public Guid SupplierId { get; set; }
 
-		public string Status { get; set; }
+		//public string Status { get; set; }
 
 		public List<CreateProductColorDto>? ProductColors { get; set; }
 	}

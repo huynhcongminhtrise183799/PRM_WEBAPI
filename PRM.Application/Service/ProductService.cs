@@ -252,10 +252,14 @@ namespace PRM.Application.Service
 				product.WeightKg = dto.WeightKg != 0 ? dto.WeightKg : product.WeightKg;
 				product.CategoryId = dto.CategoryId != Guid.Empty ? dto.CategoryId : product.CategoryId;
 				product.SupplierId = dto.SupplierId != Guid.Empty ? dto.SupplierId : product.SupplierId;
-				product.Status = dto.Status ?? product.Status;
-
+				if (string.IsNullOrEmpty(product.Status) || product.Status.Equals("inactive", StringComparison.OrdinalIgnoreCase))
+				{
+					product.Status = "active";
+				}
 				
-					if (dto.ProductColors != null && dto.ProductColors.Any())
+
+
+				if (dto.ProductColors != null && dto.ProductColors.Any())
 				{
 				
 					_unitOfWork.Repository<ProductColors>().DeleteRange(product.ProductColors);
